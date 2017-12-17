@@ -314,3 +314,80 @@ fn main() {
     let mut stderr = io::stderr();
     exit(Program::initialize(&mut stdout, &mut stderr).and_execute(&mut stdout, &mut stderr));
 }
+
+#[cfg(test)]
+mod tests {
+    use std::process::Command;
+
+    #[test]
+    fn none_empty_text_file() {
+        let output = Command::new("cargo")
+            .arg("run")
+            .arg("--bin")
+            .arg("cat")
+            .arg("testing/file_with_text")
+            .output()
+            .expect("Failed to execute command");
+
+        assert_eq!(String::from_utf8_lossy(&output.stdout), String::from("FILE IS NOT EMPTY\n"));
+    }
+
+    #[test]
+    fn empty_text_file() {
+        let output = Command::new("cargo")
+            .arg("run")
+            .arg("--bin")
+            .arg("cat")
+            .arg("testing/empty_file")
+            .output()
+            .expect("Failed execute command");
+
+        assert_eq!(String::from_utf8_lossy(&output.stdout), String::from(String::from("")));
+    }
+
+    #[test]
+    fn empty_executable_file() {
+        let output = Command::new("cargo")
+            .arg("run")
+            .arg("--bin")
+            .arg("cat")
+            .arg("testing/executable _file")
+            .output()
+            .expect("Failed execute command");
+
+        assert_eq!(String::from_utf8_lossy(&output.stdout), String::from(String::from("")));
+    }
+
+    #[test]
+    fn multi_line_lang_file() {
+        let output = Command::new("cargo")
+            .arg("run")
+            .arg("--bin")
+            .arg("cat")
+            .arg("testing/multi_line_lang_file")
+            .output()
+            .expect("Failed to execute command");
+
+        let correct_result = "Hello, 世界.\n\nThis is a file with\nseveral lines and".to_owned() +
+            &" some of them are\n\nempty or with trailing or\u{85}funny\u{a0}spaces.".to_owned() +
+            &" \n\nPangrams in different languages:\nЖълтата дюля беше щастлива, че пухът, който".to_owned() +
+            &" цъфна, замръзна като гьон.\nΓαζέες καὶ μυρτιὲς δὲν θὰ βρῶ πιὰ στὸ χρυσαφὶ ".to_owned() +
+            &"ξέφωτο\nいろはにほへとちりぬるを\n? דג סקרן שט בים מאוכזב ולפתע מצא לו חברה איך הקליטה\nPijamalı".to_owned() +
+            &" hasta, yağız şoföre çabucak güvendi.\n\n🦀\n";
+
+        assert_eq!(String::from_utf8_lossy(&output.stdout), String::from(correct_result));
+    }
+
+    #[test]
+    fn empty_symlink() {
+        let output = Command::new("cargo")
+            .arg("run")
+            .arg("--bin")
+            .arg("cat")
+            .arg("testing/symlink")
+            .output()
+            .expect("Failed to execute command.");
+
+        assert_eq!(String::from_utf8_lossy(&output.stdout), String::from(""));
+    }
+}
