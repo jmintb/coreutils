@@ -348,7 +348,7 @@ mod tests {
 
     #[test]
     fn empty_executable_file() {
-        let output = run_cat_command("testing/executable _file");
+        let output = run_cat_command("testing/empty_executable _file");
 
         assert!(&output.status.success());
         assert_eq!(String::from_utf8_lossy(&output.stdout), String::from(String::from("")));
@@ -356,7 +356,7 @@ mod tests {
 
     #[test]
     fn none_empty_executable_file() {
-        let output = run_cat_command("testing/none_empty_executable_file");
+        let output = run_cat_command("testing/executable_file");
 
         assert!(&output.status.success());
         assert_eq!(String::from_utf8_lossy(&output.stdout), String::from(String::from("FILE IS NOT EMPTY.\n")));
