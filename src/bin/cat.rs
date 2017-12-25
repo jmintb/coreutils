@@ -319,7 +319,39 @@ fn main() {
 mod tests {
     use std::process::Command;
     use std::process::Output;
+    use count_character;
 
+    #[test]
+    fn count_character_number_lines() {
+        let character_count: &mut usize = &mut 0;
+
+        count_character(character_count, &true, &false);
+        assert_eq!(character_count, &mut 1);
+    }
+
+    #[test]
+    fn count_character_number_none_empty_lines() {
+        let character_count: &mut usize = &mut 0;
+
+        count_character(character_count, &false, &true);
+        assert_eq!(character_count, &mut 1);
+    }
+
+    #[test]
+    fn count_character_number_lines_and_none_blank_lines() {
+        let character_count: &mut usize = &mut 0;
+
+        count_character(character_count, &true, &true);
+        assert_eq!(character_count, &mut 1);
+    }
+
+    #[test]
+    fn count_character_number_no_lines() {
+        let character_count: &mut usize = &mut 0;
+
+        count_character(character_count, &false, &false);
+        assert_eq!(character_count, &mut 0);
+    }
 
     fn run_cat_command(arguments: &[&str]) -> Output {
         return Command::new("target/debug/cat")
