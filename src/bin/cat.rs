@@ -323,10 +323,10 @@ mod tests {
 
     #[test]
     fn count_character_number_lines() {
-        let character_count: &mut usize = &mut 0;
+        let character_count: &mut usize = &mut 1;
 
         count_character(character_count, &true, &false);
-        assert_eq!(character_count, &mut 1);
+        assert_eq!(character_count, &mut 2);
     }
 
     #[test]
@@ -358,6 +358,71 @@ mod tests {
             .args(arguments)
             .output()
             .expect("Failed to execute command");
+    }
+
+    /// Tests the -n flag on a file with a single \n.
+    /// Expected output:     0  \n
+    #[test]
+    fn number_lines_single_empty_line() {
+        let output = run_cat_command(&["testing/new_line_file", "-n"]);
+
+        assert!(&output.status.success());
+        assert_eq!(String::from_utf8_lossy(&output.stdout), String::from("     0  \n"));
+    }
+
+    /// Tests the -n flag on an empty file.
+    /// No output is expected..
+    #[test]
+    fn number_lines_empty_file() {
+        let output = run_cat_command(&["testing/empty_file", "-n"]);
+
+        assert!(&output.status.success());
+        assert!(String::from_utf8_lossy(&output.stdout).is_empty());
+    }
+
+    /// Tests the -n flag on a multi line file with empty and none empty lines.
+    /// Expected output:     0  line one\n     1  \n     2  line three\n
+    #[test]
+    fn number_lines_multi_line() {
+        let output = run_cat_command(&["testing/multi_line_file", "-n"]);
+        let correct_result = "     0  line one\n".to_owned() +
+            &"     1  \n".to_owned() +
+            &"     2  line three\n".to_owned();
+
+        assert!(&output.status.success());
+        assert_eq!(String::from_utf8_lossy(&output.stdout), String::from(correct_result));
+    }
+
+    /// Tests the -b flag on a file with a single \n.
+    /// Expected output: \n
+    #[test]
+    fn number_none_empty_lines_empty_line_test() {
+        let output = run_cat_command(&["testing/new_line_file", "-b"]);
+
+        assert!(&output.status.success());
+        assert_eq!(String::from_utf8_lossy(&output.stdout), String::from("\n"));
+    }
+
+    /// Tests the -b flag on a file with a single line of text.
+    /// Expected output:     0  FILE IS NOT EMPTY\n
+    #[test]
+    fn number_none_empty_lines_positive_test() {
+        let output = run_cat_command(&["testing/file_with_text", "-b"]);
+
+        assert!(&output.status.success());
+        assert_eq!(String::from_utf8_lossy(&output.stdout), String::from("     0  FILE IS NOT EMPTY\n"));
+    }
+
+    /// Tests the -b flag on a multi line file with empty and none empty lines.
+    /// Expected output:     0  line one\n\n     1  line three\n
+    #[test]
+    fn number_none_empty_lines_multi_line() {
+        let output = run_cat_command(&["testing/multi_line_file", "-b"]);
+        let correct_result = "     0  line one\n\n".to_owned() +
+            &"     1  line three\n".to_owned();
+
+        assert!(&output.status.success());
+        assert_eq!(String::from_utf8_lossy(&output.stdout), String::from(correct_result));
     }
 
     #[test]
