@@ -320,19 +320,17 @@ mod tests {
     use std::process::Command;
     use std::process::Output;
 
-    fn run_cat_command(argument: &str) -> Output {
-        return Command::new("cargo")
-            .arg("run")
-            .arg("--bin")
-            .arg("cat")
-            .arg(argument)
+
+    fn run_cat_command(arguments: &[&str]) -> Output {
+        return Command::new("target/debug/cat")
+            .args(arguments)
             .output()
             .expect("Failed to execute command");
     }
 
     #[test]
     fn none_empty_text_file() {
-        let output = run_cat_command("testing/file_with_text");
+        let output = run_cat_command(&["testing/file_with_text"]);
 
         assert!(&output.status.success());
         assert_eq!(String::from_utf8_lossy(&output.stdout), String::from("FILE IS NOT EMPTY\n"));
@@ -340,7 +338,7 @@ mod tests {
 
     #[test]
     fn empty_text_file() {
-        let output = run_cat_command("testing/empty_file");
+        let output = run_cat_command(&["testing/empty_file"]);
 
         assert!(&output.status.success());
         assert_eq!(String::from_utf8_lossy(&output.stdout), String::from(String::from("")));
@@ -348,7 +346,7 @@ mod tests {
 
     #[test]
     fn empty_executable_file() {
-        let output = run_cat_command("testing/empty_executable _file");
+        let output = run_cat_command(&["testing/empty_executable _file"]);
 
         assert!(&output.status.success());
         assert_eq!(String::from_utf8_lossy(&output.stdout), String::from(String::from("")));
@@ -356,7 +354,7 @@ mod tests {
 
     #[test]
     fn none_empty_executable_file() {
-        let output = run_cat_command("testing/executable_file");
+        let output = run_cat_command(&["testing/executable_file"]);
 
         assert!(&output.status.success());
         assert_eq!(String::from_utf8_lossy(&output.stdout), String::from(String::from("FILE IS NOT EMPTY.\n")));
@@ -364,7 +362,7 @@ mod tests {
 
     #[test]
     fn multi_line_lang_file() {
-        let output = run_cat_command("testing/multi_line_lang_file");
+        let output = run_cat_command(&["testing/multi_line_lang_file"]);
 
         let correct_result = "Hello, 世界.\n\nThis is a file with\nseveral lines and".to_owned() +
             &" some of them are\n\nempty or with trailing or\u{85}funny\u{a0}spaces.".to_owned() +
@@ -379,7 +377,7 @@ mod tests {
 
     #[test]
     fn empty_symlink() {
-        let output = run_cat_command("testing/symlink");
+        let output = run_cat_command(&["testing/symlink"]);
 
         assert!(&output.status.success());
         assert_eq!(String::from_utf8_lossy(&output.stdout), String::from(""));
@@ -387,7 +385,7 @@ mod tests {
 
     #[test]
     fn none_existent_file() {
-        let output = run_cat_command("testing/none_existent_file");
+        let output = run_cat_command(&["testing/none_existent_file"]);
 
         assert!(String::from_utf8_lossy(&output.stdout).is_empty());
         assert!(!&output.status.success());
